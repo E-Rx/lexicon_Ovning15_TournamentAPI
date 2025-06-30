@@ -38,11 +38,7 @@ namespace Tournament.Data.Repositories
             return await query.ToListAsync();
         }
 
-        //public async Task<IEnumerable<Game>> GetAllAsync()
-        //{
-        //    return await _context.Games.ToListAsync();
-        //}
-
+      
         public async Task<Game?> GetAsync(int id)
         {
             return await _context.Games.FindAsync(id);
@@ -50,8 +46,9 @@ namespace Tournament.Data.Repositories
 
         public async Task<IEnumerable<Game>> GetByTitleAsync(string title)
         {
-            return await _context.Games
-                .Where(g => title.Equals(g.Title, StringComparison.CurrentCultureIgnoreCase))
+
+             return await _context.Games
+                .Where(g => g.Title.ToLower().Contains(title.ToLower()))
                 .ToListAsync();
         }
 

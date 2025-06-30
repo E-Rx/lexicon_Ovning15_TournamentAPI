@@ -28,7 +28,11 @@ namespace Tournament.API.Controllers
         {
             try
             {
-                var games = await _unitOfWork.GameRepository.GetAllAsync();
+                var games = await _unitOfWork.GameRepository.GetAllAsync(
+                    gameQuery.SortBy,
+                    gameQuery.PageNumber,
+                    gameQuery.PageSize
+                    );
 
                 if (games == null || !games.Any())
                 {
@@ -69,6 +73,33 @@ namespace Tournament.API.Controllers
             }
         }
 
+        //// GET: api/Games/search?title=Finale
+        //[HttpGet("search")]
+        //public async Task<ActionResult<IEnumerable<GameDto>>> GetGameByTitle([FromQuery] string title)
+        //{
+        //    if (string.IsNullOrWhiteSpace(title))
+        //    {
+        //        return BadRequest("You must provide a title to search.");
+        //    }
+
+        //    try
+        //    {
+        //        var matchingGames = await _unitOfWork.GameRepository.GetByTitleAsync(title);
+
+        //        if (!matchingGames.Any())
+        //        {
+        //            return NotFound($"No games found with the title '{title}'.");
+        //        }
+
+        //        var matchingGamesDto = _mapper.Map<IEnumerable<GameDto>>(matchingGames);
+        //        return Ok(matchingGamesDto);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(500, "An error occurred while searching for games.");
+        //    }
+        //}
+
         // GET: api/Games/search?title=Finale
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<GameDto>>> GetGameByTitle([FromQuery] string title)
@@ -80,19 +111,45 @@ namespace Tournament.API.Controllers
 
             try
             {
-                var matchingGames = await _unitOfWork.GameRepository.GetByTitleAsync(title);
+                // Log pour debug
+                Console.WriteLine($"[DEBUG] Searching for games with title: '{title}'");
+                Console.WriteLine($"[DEBUG] Title length: {title.Length}");
 
-                if (!matchingGames.Any())
+                // Test 1: Vérifier si la méthode GetByTitleAsync fonctionne
+                Console.WriteLine("[DEBUG] About to call GetByTitleAsync...");
+                var matchingGames = await _unitOfWork.GameRepository.GetByTitleAsync(title);
+                Console.WriteLine("[DEBUG] GetByTitleAsync completed successfully");
+
+                if (matchingGames == null)
                 {
+                    Console.WriteLine("[DEBUG] matchingGames is null");
                     return NotFound($"No games found with the title '{title}'.");
                 }
 
-                var matchingGamesDto = _mapper.Map<IEnumerable<GameDto>>(matchingGames);
+                var gamesList = matchingGames.ToList();
+                Console.WriteLine($"[DEBUG] Found {gamesList.Count} games");
+
+                if (!gamesList.Any())
+                {
+                    Console.WriteLine("[DEBUG] No games in the list");
+                    return NotFound($"No games found with the title '{title}'.");
+                }
+
+                // Test 2: Vérifier si le mapping fonctionne
+                Console.WriteLine("[DEBUG] About to map to DTO...");
+                var matchingGamesDto = _mapper.Map<IEnumerable<GameDto>>(gamesList);
+                Console.WriteLine("[DEBUG] Mapping completed successfully");
+
                 return Ok(matchingGamesDto);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while searching for games.");
+                // Log l'erreur complète pour debug
+                Console.WriteLine($"[ERROR] Error in GetGameByTitle: {ex.Message}");
+                Console.WriteLine($"[ERROR] Inner exception: {ex.InnerException?.Message}");
+                Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+
+                return StatusCode(500, $"An error occurred while searching for games: {ex.Message}");
             }
         }
 
