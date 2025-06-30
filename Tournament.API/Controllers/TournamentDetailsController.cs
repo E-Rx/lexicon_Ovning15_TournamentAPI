@@ -50,27 +50,6 @@ namespace Tournament.API.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<TournamentDetailsDto>>> GetTournamentDetails(bool includeGames)
-        //{
-        //    try
-        //    {
-        //        var tournamentDetails = await _unitOfWork.TournamentDetailsRepository.GetAllAsync(includeGames);
-
-        //        if (tournamentDetails == null || !tournamentDetails.Any())
-        //        {
-        //            return NotFound("No tournament details found.");
-        //        }
-
-        //        var tournamentDetailsDtos = _mapper.Map<IEnumerable<TournamentDetailsDto>>(tournamentDetails);
-        //        return Ok(tournamentDetailsDtos);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(500, "An error occurred while retrieving tournaments.");
-        //    }
-        //}
-
 
 
         // GET: api/TournamentDetails/5
