@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Tournament.Core.Entities;
+
+namespace Tournament.Core.Dtos
+{
+    public record TournamentDetailsDto
+    {
+        public int Id { get; init; }
+
+        [Required(ErrorMessage = "Title is required")]
+        [MaxLength(50, ErrorMessage = "Title cannot be longer than 50 characters")]
+        public string? Title { get; init; }
+        public DateTime StartDate { get; init; }
+
+        public DateTime EndDate => StartDate.AddMonths(3);
+
+        public ICollection<Game>? Games { get; init; }
+    }
+}
