@@ -41,21 +41,4 @@ Detta är ett ASP.NET Core Web API-projekt uppdelat i tre delar:
 * Skapa ett testprojekt och skriv enhetstester för kontrollerna och deras metoder.
 
 ----------------------------------------------------
-## ▶️ Hur man kör API\:et
-
-1. Klona repo och öppna projektet i din IDE (Visual Studio, VS Code, etc).
-2. Säkerställ att din `appsettings.json` har korrekt connection string till din databas.
-3. Kör migrations och uppdatera databasen:
-
-   ```
-   dotnet ef database update
-   ```
-4. Starta API\:et med:
-
-   ```
-   dotnet run --project Tournament.Api
-   ```
-5. API\:et körs nu på `https://localhost:5001` (eller annan angiven port).
-
----
 
