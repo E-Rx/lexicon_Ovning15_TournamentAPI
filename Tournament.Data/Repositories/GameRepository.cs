@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tournament.Core.Entities;
-using Tournament.Core.Repositories;
 using Tournament.Data.Data;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Domain.Models.Entities;
+using Domain.Contracts.Repositories; 
 
 namespace Tournament.Data.Repositories
 {

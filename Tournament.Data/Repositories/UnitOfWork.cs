@@ -1,6 +1,6 @@
-﻿using Tournament.Core.Repositories;
-using Tournament.Data.Data;
+﻿using Tournament.Data.Data;
 using System.Threading.Tasks;
+using Domain.Contracts.Repositories;
 
 namespace Tournament.Data.Repositories
 {

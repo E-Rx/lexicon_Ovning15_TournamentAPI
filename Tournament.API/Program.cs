@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Tournament.API.Extensions;
-using Tournament.Core.Repositories;
+using Domain.Contracts.Repositories;
 using Tournament.Data.Repositories;
 using Tournament.Data.Data;
 

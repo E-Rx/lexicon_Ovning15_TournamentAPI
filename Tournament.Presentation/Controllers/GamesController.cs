@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tournament.Core.Dtos;
-using Tournament.Core.Entities;
-using Tournament.Core.Repositories;
+using Domain.Contracts.Repositories;
+using Domain.Models.Entities;
 using Tournament.Core.QueryParameters;
 
-namespace Tournament.API.Controllers
+namespace Tournament.Presentation.Controllers
 {
     [Route("api/Games")]
     [ApiController]

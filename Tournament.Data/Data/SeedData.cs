@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Tournament.Core.Entities;
+﻿using Domain.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Tournament.Data.Data
 {

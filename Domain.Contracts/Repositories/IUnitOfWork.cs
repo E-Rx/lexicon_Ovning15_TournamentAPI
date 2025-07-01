@@ -1,5 +1,4 @@
-﻿
-namespace Tournament.Core.Repositories
+﻿namespace Domain.Contracts.Repositories
 {
     public interface IUnitOfWork
     {

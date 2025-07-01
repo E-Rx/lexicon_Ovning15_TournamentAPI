@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Tournament.Core.Entities;
-using Tournament.Core.Repositories;
 using Tournament.Data.Data;
 using Tournament.Core.QueryParameters;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Azure;
+using Domain.Contracts.Repositories;
+using Domain.Models.Entities;
 
 namespace Tournament.Data.Repositories
 {

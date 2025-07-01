@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Domain.Models.Entities;
 
 
 namespace Tournament.Data.Data;
@@ -11,7 +12,7 @@ namespace Tournament.Data.Data;
         {
         }
 
-        public DbSet<Tournament.Core.Entities.TournamentDetails> TournamentDetails { get; set; } = default!;
+        public DbSet<TournamentDetails> TournamentDetails { get; set; } = default!;
 
-        public DbSet<Tournament.Core.Entities.Game> Games { get; set; } = default!;
+        public DbSet<Game> Games { get; set; } = default!;
     }
