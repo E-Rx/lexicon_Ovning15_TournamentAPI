@@ -1,13 +1,17 @@
-﻿using Tournament.Core.Dtos;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using System.Text.Json.Nodes;
+using Tournament.Core.Dtos;
+using Tournament.Core.QueryParameters;
 
 namespace Service.Contracts
 {
     public interface ITournamentDetailsService
     {
-        Task<TournamentDetailsDto> GetTournamentDetailsAsync(int tournamentId);
-        Task<IEnumerable<TournamentDetailsDto>> GetAllTournamentsAsync();
-        Task<bool> CreateTournamentAsync(TournamentDetailsDto tournamentDetails);
-        Task<bool> UpdateTournamentAsync(TournamentDetailsDto tournamentDetails);
-        Task<bool> DeleteTournamentAsync(int tournamentId);
+        Task<TournamentDetailsPagedDto> GetAllTournamentsAsync(TournamentDetailsQuery query);
+        Task<TournamentDetailsDto?> GetTournamentDetailsAsync(TournamentDetailsQuery query);
+        Task<TournamentDetailsDto> CreateTournamentAsync(TournamentDetailsCreateDto tournamentDetailsCreateDto);
+        Task<bool> UpdateTournamentAsync(TournamentDetailsUpdateDto tournamentDetailsUpdateDto);
+        Task<bool> DeleteTournamentAsync(int Id);
+        Task<bool> PatchTournamentDetails(int tournamentDetailsId, JsonPatchDocument<TournamentDetailsUpdateDto> patchDocument);
     }
 }

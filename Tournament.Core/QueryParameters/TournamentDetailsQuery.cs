@@ -9,6 +9,8 @@ namespace Tournament.Core.QueryParameters
 {
     public class TournamentDetailsQuery
     {
+        public int Id { get; set; }
+
         public bool IncludeGames { get; set; } = false;
         public string? SortBy { get; set; } = null;
 

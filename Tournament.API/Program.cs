@@ -3,6 +3,8 @@ using Tournament.API.Extensions;
 using Domain.Contracts.Repositories;
 using Tournament.Data.Repositories;
 using Tournament.Data.Data;
+using Service.Contracts;
+using Tournament.Services.Services;
 
 namespace Tournament.API
 {
@@ -18,6 +20,9 @@ namespace Tournament.API
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITournamentDetailsRepository, TournamentDetailsRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddScoped<ITournamentDetailsService, TournamentDetailsService>();
+            builder.Services.AddScoped<IGameService, GameService>();
 
 
             // Add services to the container.

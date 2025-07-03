@@ -84,7 +84,7 @@ namespace Tournament.Presentation.Controllers
 
             try
             {
-                var matchingGames = await _unitOfWork.GameRepository.GetByTitleAsync(title);
+                var matchingGames = await _unitOfWork.GameRepository.GetGameByTitleAsync(title);
 
                 if (!matchingGames.Any())
                 {

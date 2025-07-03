@@ -9,6 +9,7 @@ namespace Tournament.Core.Dtos
 {
     public record TournamentDetailsUpdateDto
     {
+        public int Id { get; init; }
 
         [Required(ErrorMessage = "Title is required")]
         [MaxLength(50, ErrorMessage = "Title cannot be longer than 50 characters")]

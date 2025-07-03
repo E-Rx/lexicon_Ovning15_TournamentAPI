@@ -6,7 +6,7 @@ namespace Domain.Contracts.Repositories
     {
         Task<IEnumerable<Game>> GetAllAsync(string? sortBy = null, int pageNumber = 1, int pageSize = 10);
         Task<Game?> GetAsync(int id);
-        Task<IEnumerable<Game>> GetByTitleAsync(string title);
+        Task<IEnumerable<Game>> GetGameByTitleAsync(string title);
         Task<bool> AnyAsync(int id);
         void Add(Game game);
         void Update(Game game);
@@ -14,6 +14,6 @@ namespace Domain.Contracts.Repositories
         
         // sort and filter 
         IQueryable<Game> GetQueryable();
-
+        Task<int> CountGamesByTournamentAsync(int tournamentId);
     }
 }

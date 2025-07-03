@@ -6,7 +6,8 @@ using Tournament.Core.Dtos;
 using Tournament.Core.QueryParameters;
 using Domain.Contracts.Repositories;
 using Domain.Models.Entities;
-
+using Service.Contracts;
+using Tournament.Services.Services;
 
 namespace Tournament.Presentation.Controllers
 {
@@ -14,15 +15,16 @@ namespace Tournament.Presentation.Controllers
     [ApiController]
     public class TournamentDetailsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        //private readonly IUnitOfWork _unitOfWork;
+        //private readonly IMapper _mapper;
+        private readonly IServiceManager _serviceManager;
 
-        public TournamentDetailsController(IUnitOfWork unitOfWork, IMapper mapper)
+        public TournamentDetailsController(IServiceManager serviceManager)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            //_unitOfWork = unitOfWork;
+            //_mapper = mapper;
+            _serviceManager = serviceManager;
         }
-
 
         // GET: api/TournamentDetails
         [HttpGet]
@@ -30,19 +32,13 @@ namespace Tournament.Presentation.Controllers
         {
             try
             {
-                var tournamentDetails = await _unitOfWork.TournamentDetailsRepository.GetAllAsync(
-                    query.IncludeGames, 
-                    query.SortBy,
-                    query.PageNumber,
-                    query.PageSize);
-
-                if (tournamentDetails == null || !tournamentDetails.Any())
+                var tournaments = await _serviceManager.TournamentDetailsService.GetAllTournamentsAsync(query);
+                if (tournaments == null || !tournaments.Items.Any())
                 {
                     return NotFound("No tournament details found.");
                 }
 
-                var tournamentDetailsDtos = _mapper.Map<IEnumerable<TournamentDetailsDto>>(tournamentDetails);
-                return Ok(tournamentDetailsDtos);
+                return Ok(tournaments);
             }
             catch (Exception)
             {
@@ -50,24 +46,22 @@ namespace Tournament.Presentation.Controllers
             }
         }
 
-
-
         // GET: api/TournamentDetails/5
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<TournamentDetailsDto>> GetTournamentDetails(int id)
         {
             try
             {
-                var tournamentDetails = await _unitOfWork.TournamentDetailsRepository.GetAsync(id);
+                var query = new TournamentDetailsQuery { Id = id };
+                var tournamentDetails = await _serviceManager.TournamentDetailsService.GetTournamentDetailsAsync(query);
+
                 if (tournamentDetails == null)
                 {
                     return NotFound($"Tournament with ID {id} not found.");
                 }
 
-                var tournamentDetailsDto = _mapper.Map<TournamentDetailsDto>(tournamentDetails);
-                return Ok(tournamentDetailsDto);
+                return Ok(tournamentDetails);
             }
-
             catch (Exception)
             {
                 return StatusCode(500, "An error occurred while retrieving the tournament.");
@@ -76,31 +70,26 @@ namespace Tournament.Presentation.Controllers
 
         // PUT: api/TournamentDetails/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTournamentDetails(int id, TournamentDetailsDto tournamentDetailsDto)
+        public async Task<IActionResult> PutTournamentDetails(int id, TournamentDetailsUpdateDto tournamentDetailsUpdateDto)
         {
-            if (id != tournamentDetailsDto.Id)
+            if (id != tournamentDetailsUpdateDto.Id)
             {
                 return BadRequest("ID in URL does not match ID in body.");
             }
 
-            var tournamentDetails = _mapper.Map<TournamentDetails>(tournamentDetailsDto);
-            _unitOfWork.TournamentDetailsRepository.Update(tournamentDetails);
-
             try
             {
-                await _unitOfWork.CompleteAsync();
-            }
+                var success = await _serviceManager.TournamentDetailsService.UpdateTournamentAsync(tournamentDetailsUpdateDto);
 
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await TournamentDetailsExists(id))
+                if (!success)
                 {
                     return NotFound($"Tournament with ID {id} no longer exists.");
                 }
-
+            }
+            catch (DbUpdateConcurrencyException)
+            {
                 return StatusCode(500, "A concurrency error occurred while updating.");
             }
-
             catch (Exception)
             {
                 return StatusCode(500, "An error occurred while updating the tournament.");
@@ -111,29 +100,29 @@ namespace Tournament.Presentation.Controllers
 
         // POST: api/TournamentDetails
         [HttpPost]
-        public async Task<ActionResult<TournamentDetailsDto>> PostTournamentDetails(TournamentDetailsDto tournamentDetailsDto)
+        public async Task<ActionResult<TournamentDetailsDto>> PostTournamentDetails(TournamentDetailsCreateDto tournamentDetailsCreateDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var tournamentDetails = _mapper.Map<TournamentDetails>(tournamentDetailsDto);
-            _unitOfWork.TournamentDetailsRepository.Add(tournamentDetails);
-
             try
             {
-                await _unitOfWork.CompleteAsync();
-            }
+                var createdTournament = await _serviceManager.TournamentDetailsService.CreateTournamentAsync(tournamentDetailsCreateDto);
+                if (createdTournament == null)
+                {
+                    return StatusCode(500, "Failed to save tournament to the database.");
+                }
 
+                return CreatedAtAction(nameof(GetTournamentDetails), new { id = createdTournament.Id }, createdTournament);
+            }
             catch (Exception)
             {
                 return StatusCode(500, "Failed to save tournament to the database.");
             }
-
-            var createdDto = _mapper.Map<TournamentDetailsDto>(tournamentDetails);
-            return CreatedAtAction(nameof(GetTournamentDetails), new { id = tournamentDetails.Id }, createdDto);
         }
+
 
         // PATCH: api/TournamentDetails/5
         [HttpPatch("{tournamentDetailsId}")]
@@ -144,37 +133,14 @@ namespace Tournament.Presentation.Controllers
                 return BadRequest("No patch document provided.");
             }
 
-            var tournament = await _unitOfWork.TournamentDetailsRepository.GetAsync(tournamentDetailsId);
-
-            if (tournament == null)
+            var success = await _serviceManager.TournamentDetailsService.PatchTournamentDetails(tournamentDetailsId, patchDocument);
+            if (!success)
             {
                 return NotFound($"Tournament with ID {tournamentDetailsId} not found.");
             }
 
-            // Map entity to updatable DTO
-            var dtoToPatch = _mapper.Map<TournamentDetailsUpdateDto>(tournament);
-
-            // Apply the patch
-            patchDocument.ApplyTo(dtoToPatch, ModelState);
-
-            TryValidateModel(dtoToPatch);
-
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
-            // Map the patched DTO back to the entity
-            _mapper.Map(dtoToPatch, tournament);
-            await _unitOfWork.CompleteAsync();
-
             return NoContent();
         }
-
-
-
-
-
 
         // DELETE: api/TournamentDetails/5
         [HttpDelete("{id}")]
@@ -182,16 +148,12 @@ namespace Tournament.Presentation.Controllers
         {
             try
             {
-                var tournamentDetails = await _unitOfWork.TournamentDetailsRepository.GetAsync(id);
-                if (tournamentDetails == null)
+                var success = await _serviceManager.TournamentDetailsService.DeleteTournamentAsync(id);
+                if (!success)
                 {
                     return NotFound($"Tournament with ID {id} not found.");
                 }
-
-                _unitOfWork.TournamentDetailsRepository.Remove(tournamentDetails);
-                await _unitOfWork.CompleteAsync();
             }
-
             catch (Exception)
             {
                 return StatusCode(500, "An error occurred while deleting the tournament.");
@@ -200,9 +162,10 @@ namespace Tournament.Presentation.Controllers
             return NoContent();
         }
 
-        private async Task<bool> TournamentDetailsExists(int id)
-        {
-            return await _unitOfWork.TournamentDetailsRepository.AnyAsync(id);
-        }
+        // Méthode rendue inutile par le service, conservée ici en commentaire
+        // private async Task<bool> TournamentDetailsExists(int id)
+        // {
+        //     return await _unitOfWork.TournamentDetailsRepository.AnyAsync(id);
+        // }
     }
 }

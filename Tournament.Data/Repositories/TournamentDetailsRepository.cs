@@ -89,6 +89,12 @@ namespace Tournament.Data.Repositories
             return _context.TournamentDetails.AsQueryable();
         }
 
-        
+        public async Task<int> GetCountAsync()
+        {
+            return await _context.TournamentDetails.CountAsync();
+        }
+
+
+
     }
 }
