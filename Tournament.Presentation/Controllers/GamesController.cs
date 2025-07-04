@@ -106,17 +106,22 @@ namespace Tournament.Presentation.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGame(int id, GameDto gameDto)
         {
-            if (id != gameDto.Id)
-            {
-                return BadRequest("The ID in the URL does not match the Game ID in the body.");
-            }
+            
 
             try
             {
-                var game = _mapper.Map<Game>(gameDto);
-                _unitOfWork.GameRepository.Update(game);
+                var existingGame = await _unitOfWork.GameRepository.GetAsync(id);   
 
+                if (existingGame == null)
+                {
+                    return NotFound($"Game with ID {id} does not exist.");
+                }
+
+                _mapper.Map(gameDto, existingGame);
+
+                _unitOfWork.GameRepository.Update(existingGame);
                 await _unitOfWork.CompleteAsync();
+
                 return NoContent();
             }
             catch (DbUpdateConcurrencyException)
@@ -136,14 +141,14 @@ namespace Tournament.Presentation.Controllers
 
         // POST: api/Games
         [HttpPost]
-        public async Task<ActionResult<GameDto>> PostGame(GameDto gameDto)
+        public async Task<ActionResult<GameDto>> PostGame(GameCreateDto gameCreateDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var game = _mapper.Map<Game>(gameDto);
+            var game = _mapper.Map<Game>(gameCreateDto);
             _unitOfWork.GameRepository.Add(game);
 
             try

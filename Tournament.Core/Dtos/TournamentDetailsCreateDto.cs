@@ -16,7 +16,7 @@ namespace Tournament.Core.Dtos
 
         public DateTime StartDate { get; init; }
 
-        public ICollection<GameDto>? Games { get; init; } = new List<GameDto>();
+        public ICollection<GameCreateDto>? Games { get; init; } = new List<GameCreateDto>();
     }
 
     

@@ -10,6 +10,7 @@ namespace  Tournament.Core.Dtos
 {
     public record TournamentDetailsDto
     {
+
         public int Id { get; init; }
 
         [Required(ErrorMessage = "Title is required")]
