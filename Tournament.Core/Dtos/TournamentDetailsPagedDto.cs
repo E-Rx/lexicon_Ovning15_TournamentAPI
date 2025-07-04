@@ -8,7 +8,7 @@ namespace Tournament.Core.Dtos
 {
     public class TournamentDetailsPagedDto
     {
-        public List<TournamentDetailsDto> Items { get; set; }
+        public List<TournamentDetailsDto>? Items { get; set; }
         public int TotalCount { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Tournament.Core.Dtos;
 using Domain.Contracts.Repositories;
 using Domain.Models.Entities;
 using Tournament.Core.QueryParameters;
+using Service.Contracts;
 
 namespace Tournament.Presentation.Controllers
 {
@@ -13,13 +14,16 @@ namespace Tournament.Presentation.Controllers
     [ApiController]
     public class GamesController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        //private readonly IUnitOfWork _unitOfWork;
+        //private readonly IMapper _mapper;
 
-        public GamesController(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IServiceManager _serviceManager;
+
+        public GamesController(IServiceManager serviceManager)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            //_unitOfWork = unitOfWork;
+           // _mapper = mapper;
+            _serviceManager=serviceManager;
         }
 
         // GET: api/Games
@@ -28,11 +32,8 @@ namespace Tournament.Presentation.Controllers
         {
             try
             {
-                var games = await _unitOfWork.GameRepository.GetAllAsync(
-                    gameQuery.SortBy,
-                    gameQuery.PageNumber,
-                    gameQuery.PageSize
-                    );
+                var games = await _serviceManager.GameService.GetAllGamesAsync(gameQuery);
+
 
                 if (games == null || !games.Any())
                 {
@@ -40,8 +41,7 @@ namespace Tournament.Presentation.Controllers
                 }
 
 
-                var gamesDtos = _mapper.Map<IEnumerable<GameDto>>(games);
-                return Ok(gamesDtos);
+                return Ok(games);
             }
 
             catch (Exception)
@@ -56,15 +56,14 @@ namespace Tournament.Presentation.Controllers
         {
             try
             {
-                var game = await _unitOfWork.GameRepository.GetAsync(id);
+                var game = await _serviceManager.GameService.GetGameAsync(id);
 
                 if (game == null)
                 {
                     return NotFound($"Game with ID {id} not found.");
                 }
 
-                var gameDto = _mapper.Map<GameDto>(game);
-                return Ok(gameDto);
+                return Ok(game);
             }
 
             catch (Exception)
@@ -84,15 +83,14 @@ namespace Tournament.Presentation.Controllers
 
             try
             {
-                var matchingGames = await _unitOfWork.GameRepository.GetGameByTitleAsync(title);
+                var matchingGames = await _serviceManager.GameService.GetGameByTitleAsync(title);
 
                 if (!matchingGames.Any())
                 {
                     return NotFound($"No games found with the title '{title}'.");
                 }
 
-                var matchingGamesDto = _mapper.Map<IEnumerable<GameDto>>(matchingGames);
-                return Ok(matchingGamesDto);
+                return Ok(matchingGames);
             }
             catch (Exception)
             {
@@ -104,39 +102,29 @@ namespace Tournament.Presentation.Controllers
 
         // PUT: api/Games/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGame(int id, GameDto gameDto)
+        public async Task<IActionResult> PutGame(int id, GameUpdateDto gameUpdateDto)
         {
-            
+            if (id != gameUpdateDto.Id)
+            {
+                return BadRequest("ID in URL does not match ID in body.");
+            }
 
             try
             {
-                var existingGame = await _unitOfWork.GameRepository.GetAsync(id);   
+                var success = await _serviceManager.GameService.UpdateGameAsync(gameUpdateDto);
 
-                if (existingGame == null)
+                if (!success)
                 {
                     return NotFound($"Game with ID {id} does not exist.");
                 }
-
-                _mapper.Map(gameDto, existingGame);
-
-                _unitOfWork.GameRepository.Update(existingGame);
-                await _unitOfWork.CompleteAsync();
 
                 return NoContent();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await GameExists(id))
-                {
-                    return NotFound($"Game with ID {id} does not exist.");
-                }
                 return StatusCode(500, "A concurrency error occurred while updating the game.");
             }
 
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while updating the game.");
-            }
         }
 
         // POST: api/Games
@@ -148,20 +136,23 @@ namespace Tournament.Presentation.Controllers
                 return BadRequest(ModelState);
             }
 
-            var game = _mapper.Map<Game>(gameCreateDto);
-            _unitOfWork.GameRepository.Add(game);
 
             try
             {
-                await _unitOfWork.CompleteAsync();
+                var createdGame = await _serviceManager.GameService.CreateGameAsync(gameCreateDto);
+
+                if (createdGame == null)
+                {
+                    return StatusCode(500, "Failed to save game to the database.");
+                }
+
+                return CreatedAtAction(nameof(GetGame), new { id = createdGame.Id }, createdGame);
             }
             catch (Exception)
             {
                 return StatusCode(500, "Failed to save game to the database.");
             }
 
-            var createdDto = _mapper.Map<GameDto>(game);
-            return CreatedAtAction(nameof(GetGame), new { id = game.Id }, createdDto);
         }
 
 
@@ -173,28 +164,12 @@ namespace Tournament.Presentation.Controllers
                 return BadRequest("No patch document provided.");
             }
 
-            var game = await _unitOfWork.GameRepository.GetAsync(gameId);
+            var success = await _serviceManager.GameService.PatchGameAsync(gameId, patchDocument);
 
-            if (game == null)
+            if (!success)
             {
                 return NotFound($"Game with ID {gameId} not found.");
             }
-
-            // Map entity to updatable DTO
-            var dtoToPatch = _mapper.Map<GameUpdateDto>(game);
-
-            // Apply the patch
-            patchDocument.ApplyTo(dtoToPatch, ModelState);
-            TryValidateModel(dtoToPatch);
-
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
-            // Map back to entity and save changes
-            _mapper.Map(dtoToPatch, game);
-            await _unitOfWork.CompleteAsync();
 
             return NoContent();
         }
@@ -206,15 +181,12 @@ namespace Tournament.Presentation.Controllers
         {
             try
             {
-                var game = await _unitOfWork.GameRepository.GetAsync(id);
+                var success = await _serviceManager.GameService.DeleteGameAsync(id);
 
-                if (game == null)
+                if (!success)
                 {
                     return NotFound($"Game with ID {id} not found.");
                 }
-
-                _unitOfWork.GameRepository.Remove(game);
-                await _unitOfWork.CompleteAsync();
 
                 return NoContent();
             }
@@ -224,9 +196,6 @@ namespace Tournament.Presentation.Controllers
             }
         }
 
-        private async Task<bool> GameExists(int id)
-        {
-            return await _unitOfWork.GameRepository.AnyAsync(id);
-        }
+       
     }
 }

@@ -14,8 +14,8 @@ namespace Service.Contracts
         Task<GameDto?> GetGameAsync(int id);
         Task<IEnumerable<GameDto>> GetAllGamesAsync(GameQuery query);
         Task<IEnumerable<GameDto>> GetGameByTitleAsync(string title);
-        Task<bool> CreateGameAsync(GameDto gameDto);
-        Task<bool> UpdateGameAsync(GameDto gameDto);
+        Task<GameDto> CreateGameAsync(GameCreateDto gameCreateDto);
+        Task<bool> UpdateGameAsync(GameUpdateDto gameUpdateDto);
         Task<bool> DeleteGameAsync(int id);
         Task<bool> PatchGameAsync(int gameId, JsonPatchDocument<GameUpdateDto> patchDocument);
 

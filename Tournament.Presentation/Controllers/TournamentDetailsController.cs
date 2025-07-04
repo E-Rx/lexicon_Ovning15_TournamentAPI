@@ -90,10 +90,7 @@ namespace Tournament.Presentation.Controllers
             {
                 return StatusCode(500, "A concurrency error occurred while updating.");
             }
-            catch (Exception)
-            {
-                return StatusCode(500, "An error occurred while updating the tournament.");
-            }
+            
 
             return NoContent();
         }
@@ -162,10 +159,6 @@ namespace Tournament.Presentation.Controllers
             return NoContent();
         }
 
-        // Méthode rendue inutile par le service, conservée ici en commentaire
-        // private async Task<bool> TournamentDetailsExists(int id)
-        // {
-        //     return await _unitOfWork.TournamentDetailsRepository.AnyAsync(id);
-        // }
+       
     }
 }

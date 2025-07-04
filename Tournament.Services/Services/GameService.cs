@@ -24,14 +24,14 @@ namespace Tournament.Services.Services
 
         public async Task<GameDto?> GetGameAsync(int id)
         {
-            var game = _unitOfWork.GameRepository.GetAsync(id);
+            var game = await _unitOfWork.GameRepository.GetAsync(id);
             return game == null ? null : _mapper.Map<GameDto>(game);
            
         }
 
         public async Task<IEnumerable<GameDto>> GetAllGamesAsync(GameQuery query)
         { 
-           var games = _unitOfWork.GameRepository.GetAllAsync(
+           var games = await _unitOfWork.GameRepository.GetAllAsync(
                 query.SortBy,
                 query.PageNumber,
                 query.PageSize
@@ -42,32 +42,32 @@ namespace Tournament.Services.Services
 
         public async Task<IEnumerable<GameDto>> GetGameByTitleAsync(string title)
         {
-           var games = _unitOfWork.GameRepository.GetGameByTitleAsync(title);       
+           var games = await _unitOfWork.GameRepository.GetGameByTitleAsync(title);       
             return _mapper.Map<IEnumerable<GameDto>>(games);
         }
 
 
-        public async Task<bool> CreateGameAsync(GameDto gameDto)
+        public async Task<GameDto> CreateGameAsync(GameCreateDto gameCreateDto)
         {
-            await ValidateMaxGamesPerTournament(gameDto.TournamentId);
+            await ValidateMaxGamesPerTournament(gameCreateDto.TournamentId);
 
-            var game = _mapper.Map<Game>(gameDto);
+            var game = _mapper.Map<Game>(gameCreateDto);
             _unitOfWork.GameRepository.Add(game);
             await _unitOfWork.CompleteAsync();
-            return true;
+            return _mapper.Map<GameDto>(game);
         }
 
-        public async Task<bool> UpdateGameAsync(GameDto gameDto)
+        public async Task<bool> UpdateGameAsync(GameUpdateDto gameUpdateDto)
         {
-            var existingGame = await _unitOfWork.GameRepository.GetAsync(gameDto.Id);
+            var existingGame = await _unitOfWork.GameRepository.GetAsync(gameUpdateDto.Id);
             if (existingGame == null) return false;
             
-            if (existingGame.TournamentId != gameDto.TournamentId)
+            if (existingGame.TournamentId != gameUpdateDto.TournamentId)
             {
-                await ValidateMaxGamesPerTournament(gameDto.TournamentId);
+                await ValidateMaxGamesPerTournament(gameUpdateDto.TournamentId);
             }
 
-            _mapper.Map(gameDto, existingGame);
+            _mapper.Map(gameUpdateDto, existingGame);
             _unitOfWork.GameRepository.Update(existingGame);
             await _unitOfWork.CompleteAsync();
             return true;
@@ -88,7 +88,8 @@ namespace Tournament.Services.Services
         {
             var game = await _unitOfWork.GameRepository.GetAsync(gameId);   
             if (game == null) return false;
-           
+            if (patchDocument == null) return false;
+
             var dtoToPatch = _mapper.Map<GameUpdateDto>(game);
             patchDocument.ApplyTo(dtoToPatch);
 
@@ -109,10 +110,9 @@ namespace Tournament.Services.Services
             {
                 throw new Exception($"Cannot add more than {MaxGamesPerTournament} games to a tournament.");
             }
-
-
-     
+   
         }
+
 
     }
 }
