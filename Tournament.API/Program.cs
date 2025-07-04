@@ -20,13 +20,19 @@ namespace Tournament.API
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITournamentDetailsRepository, TournamentDetailsRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
-            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+
+            // Add Scoped Services
             builder.Services.AddScoped<ITournamentDetailsService, TournamentDetailsService>();
             builder.Services.AddScoped<IGameService, GameService>();
 
+            // Add Lazy Services
+            builder.Services.AddLazyServices();
 
-            // Add services to the container.
 
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+
+
+            // Add services to the container
             builder.Services.AddControllers(opt => opt.ReturnHttpNotAcceptable = true)
                 .AddNewtonsoftJson()
                 .AddXmlSerializerFormatters();
@@ -48,10 +54,7 @@ namespace Tournament.API
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
