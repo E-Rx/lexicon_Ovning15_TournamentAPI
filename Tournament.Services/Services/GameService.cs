@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Domain.Contracts.Repositories;
+using Domain.Models.Entities;
+using Microsoft.AspNetCore.JsonPatch;
 using Service.Contracts;
 using Tournament.Core.Dtos;
+using Tournament.Core.Dtos.Tournament.Core.Dtos;
 using Tournament.Core.QueryParameters;
-using Microsoft.AspNetCore.JsonPatch;
-using Domain.Models.Entities;
 
 
 namespace Tournament.Services.Services
@@ -29,15 +30,27 @@ namespace Tournament.Services.Services
            
         }
 
-        public async Task<IEnumerable<GameDto>> GetAllGamesAsync(GameQuery query)
-        { 
-           var games = await _unitOfWork.GameRepository.GetAllAsync(
+        public async Task<GamePagedDto> GetAllGamesAsync(GameQuery query)
+        {
+            var totalItems = await _unitOfWork.GameRepository.GetCountAsync();
+
+            var games = await _unitOfWork.GameRepository.GetAllAsync(
                 query.SortBy,
                 query.PageNumber,
                 query.PageSize
             );
-           
-            return _mapper.Map<IEnumerable<GameDto>>(games);
+
+            var gameDtos = _mapper.Map<List<GameDto>>(games);
+            var totalPages = (int)Math.Ceiling((double)totalItems / query.PageSize);
+
+            return new GamePagedDto
+            {
+                Items = gameDtos,
+                TotalCount = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = query.PageNumber,
+                PageSize = query.PageSize
+            };
         }
 
         public async Task<IEnumerable<GameDto>> GetGameByTitleAsync(string title)
@@ -113,6 +126,9 @@ namespace Tournament.Services.Services
    
         }
 
-
+        public class BusinessRuleException : Exception
+        {
+            public BusinessRuleException(string message) : base(message) { }
+        }
     }
 }

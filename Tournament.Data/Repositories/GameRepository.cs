@@ -82,5 +82,10 @@ namespace Tournament.Data.Repositories
             return await _context.Games.CountAsync(g => g.TournamentId == tournamentId);
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await _context.Games.CountAsync();
+        }
+
     }
 }

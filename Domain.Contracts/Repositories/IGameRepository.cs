@@ -15,5 +15,6 @@ namespace Domain.Contracts.Repositories
         // sort and filter 
         IQueryable<Game> GetQueryable();
         Task<int> CountGamesByTournamentAsync(int tournamentId);
+        Task<int> GetCountAsync();
     }
 }

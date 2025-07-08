@@ -32,18 +32,15 @@ namespace Tournament.Presentation.Controllers
         {
             try
             {
-                var games = await _serviceManager.GameService.GetAllGamesAsync(gameQuery);
+                var gamesPagedDto = await _serviceManager.GameService.GetAllGamesAsync(gameQuery);
 
-
-                if (games == null || !games.Any())
+                if (gamesPagedDto == null || gamesPagedDto.Items == null || !gamesPagedDto.Items.Any())
                 {
                     return NotFound("No games found.");
                 }
 
-
-                return Ok(games);
+                return Ok(gamesPagedDto.Items);
             }
-
             catch (Exception)
             {
                 return StatusCode(500, "An error occurred while retrieving games.");

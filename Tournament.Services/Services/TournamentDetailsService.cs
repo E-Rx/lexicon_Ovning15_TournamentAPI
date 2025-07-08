@@ -23,20 +23,20 @@ namespace Tournament.Services.Services
         public async Task<TournamentDetailsPagedDto> GetAllTournamentsAsync(TournamentDetailsQuery query)
         {
             var totalItems = await _unitOfWork.TournamentDetailsRepository.GetCountAsync();
-
             var tournaments = await _unitOfWork.TournamentDetailsRepository.GetAllAsync(
-                query.IncludeGames,
-                query.SortBy,
-                query.PageNumber,
-                query.PageSize
-            );
+                query.IncludeGames, query.SortBy, query.PageNumber, query.PageSize);
 
             var tournamentDetailsDtos = _mapper.Map<List<TournamentDetailsDto>>(tournaments);
+
+            var totalPages = (int)Math.Ceiling((double)totalItems / query.PageSize);
 
             return new TournamentDetailsPagedDto
             {
                 Items = tournamentDetailsDtos,
-                TotalCount = totalItems
+                TotalCount = totalItems,
+                TotalPages = totalPages,           
+                CurrentPage = query.PageNumber,   
+                PageSize = query.PageSize          
             };
         }
 
