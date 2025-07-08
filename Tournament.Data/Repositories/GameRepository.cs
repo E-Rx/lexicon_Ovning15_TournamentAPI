@@ -44,10 +44,14 @@ namespace Tournament.Data.Repositories
 
         public async Task<IEnumerable<Game>> GetGameByTitleAsync(string title)
         {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return Enumerable.Empty<Game>();
+            }
 
             return await _context.Games
-               .Where(g => g.Title.ToLower().Contains(title.ToLower()))
-               .ToListAsync();
+                .Where(g => g.Title != null && g.Title.ToLower().Contains(title.ToLower()))
+                .ToListAsync();
         }
 
 

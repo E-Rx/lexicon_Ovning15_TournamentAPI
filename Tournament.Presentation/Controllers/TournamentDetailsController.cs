@@ -33,7 +33,7 @@ namespace Tournament.Presentation.Controllers
             try
             {
                 var tournaments = await _serviceManager.TournamentDetailsService.GetAllTournamentsAsync(query);
-                if (tournaments == null || !tournaments.Items.Any())
+                if (tournaments?.Items == null || !tournaments.Items.Any())
                 {
                     return NotFound("No tournament details found.");
                 }
