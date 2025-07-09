@@ -57,6 +57,14 @@ namespace Tournament.API
             app.UseAuthorization();
             app.MapControllers();
 
+
+            // Seed data
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<TournamentAPIContext>();
+                await SeedData.InitAsync(context);
+            }
+
             app.Run();
         }
     }
