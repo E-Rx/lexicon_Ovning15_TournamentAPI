@@ -12,7 +12,6 @@ namespace Domain.Contracts.Repositories
         void Update(Game game);
         void Remove(Game game);
         
-        // sort and filter 
         IQueryable<Game> GetQueryable();
         Task<int> CountGamesByTournamentAsync(int tournamentId);
         Task<int> GetCountAsync();

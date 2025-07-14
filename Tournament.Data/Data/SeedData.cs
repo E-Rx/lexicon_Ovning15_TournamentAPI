@@ -52,7 +52,6 @@ namespace Tournament.Data.Data
                     var currentDate = t.StartDate;
                     foreach (var game in games)
                     {
-                        // Games occur after tournament start, spaced 1-2 days apart
                         game.Time = currentDate.AddDays(f.Random.Int(0, 2)).AddHours(f.Random.Int(9, 20));
                         currentDate = game.Time.AddDays(1);
                     }
@@ -133,38 +132,8 @@ namespace Tournament.Data.Data
     //                    new Game { Title = "Final Duel", Time = new DateTime(2025, 9, 20, 19, 30, 0) }
     //                }
     //            },
-
-    //            new TournamentDetails
-    //            {
-    //                Title = "Champions Clash 2025",
-    //                StartDate = new DateTime(2025, 11, 3),
-    //                Games = new List<Game>
-    //                {
-    //                    new Game { Title = "Qualifier Round", Time = new DateTime(2025, 11, 4, 9, 0, 0) },
-    //                    new Game { Title = "Elimination Match", Time = new DateTime(2025, 11, 6, 13, 0, 0) },
-    //                    new Game { Title = "Semi Final", Time = new DateTime(2025, 11, 8, 17, 30, 0) },
-    //                    new Game { Title = "Grand Final", Time = new DateTime(2025, 11, 10, 20, 0, 0) }
-    //                }
-    //            },
-
-    //            new TournamentDetails
-    //            {
-    //                Title = "New Year Invitational 2026",
-    //                StartDate = new DateTime(2026, 1, 2),
-    //                Games = new List<Game>
-    //                {
-    //                    new Game { Title = "Opening Ceremony Match", Time = new DateTime(2026, 1, 2, 10, 0, 0) },
-    //                    new Game { Title = "Round of 16", Time = new DateTime(2026, 1, 3, 14, 0, 0) },
-    //                    new Game { Title = "Quarter Final", Time = new DateTime(2026, 1, 5, 16, 0, 0) },
-    //                    new Game { Title = "Final", Time = new DateTime(2026, 1, 7, 18, 30, 0) }
-    //                }
-    //            },
-
-
+    //            
     //        };
-
-
-
     //        context.TournamentDetails.AddRange(tournaments);
     //        await context.SaveChangesAsync();
     //    }
